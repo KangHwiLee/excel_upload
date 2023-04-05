@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sqlmap.test">
+	<select id="test" resultType="string">
+		select * from test;
+	</select>
+	
+	<select id="last_table" resultType="int">
+		SELECT distinct if(count(table_name)=0, 0, max(SUBSTRING_INDEX(table_name, '_log', 1))) FROM information_schema.tables
+WHERE table_schema = 'excel_test';
+	</select>
+	
+	<update id="create_table">
+		CREATE TABLE `${table_name}` (
+		  `idx` bigint(20) NOT NULL AUTO_INCREMENT,
+		  <foreach collection="arr_len" item="item">
+			  `col_${item}` varchar(100) DEFAULT NULL,
+		  </foreach>
+		  PRIMARY KEY (`idx`)
+		) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+		CREATE TABLE `${table_name}_log` (
+		  `idx` bigint(20) NOT NULL AUTO_INCREMENT,
+		  <foreach collection="arr_len" item="item">
+			  `col_${item}` varchar(100) DEFAULT NULL,
+		  </foreach>
+		  PRIMARY KEY (`idx`)
+		) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+	</update>
+	
+	<update id="upload_excel">
+		<foreach collection="row" item="item1">
+			insert into ${table_name}
+			<foreach collection="column" item="item2" open="(" close=")" separator=",">
+				${item2}
+			</foreach>
+			values
+			<foreach collection="item1" item="item3" open="(" close=")" separator=",">
+				#{item3}
+			</foreach>
+		</foreach>
+	</update>
+	
+</mapper>
+
+
+
+
