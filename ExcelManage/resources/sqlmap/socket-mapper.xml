@@ -6,15 +6,15 @@
 	</select>
 	
 	<select id="last_table" resultType="int">
-		SELECT distinct if(count(table_name)=0, 0, max(SUBSTRING_INDEX(table_name, '_log', 1))) FROM information_schema.tables
+		SELECT distinct if(count(table_name)=0, 0, max(CAST(SUBSTRING_INDEX(table_name, '_log', 1) AS signed integer))) FROM information_schema.tables
 WHERE table_schema = 'excel_test';
 	</select>
 	
 	<update id="create_table">
-		CREATE TABLE `${table_name}` (
+		CREATE TABLE `excel_${table_name}` (
 		  `idx` bigint(20) NOT NULL AUTO_INCREMENT,
 		  <foreach collection="arr_len" item="item">
-			  `col_${item}` varchar(100) DEFAULT NULL,
+			  `col_${item}` varchar(500) DEFAULT NULL,
 		  </foreach>
 		  PRIMARY KEY (`idx`)
 		) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
@@ -22,21 +22,40 @@ WHERE table_schema = 'excel_test';
 		CREATE TABLE `${table_name}_log` (
 		  `idx` bigint(20) NOT NULL AUTO_INCREMENT,
 		  <foreach collection="arr_len" item="item">
-			  `col_${item}` varchar(100) DEFAULT NULL,
+			  `col_${item}` varchar(500) DEFAULT NULL,
 		  </foreach>
 		  PRIMARY KEY (`idx`)
 		) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 	</update>
 	
-	<update id="upload_excel">
+<!--	<update id="upload_excel" parameterType="list">
 		<foreach collection="row" item="item1">
-			insert into ${table_name}
-			<foreach collection="column" item="item2" open="(" close=")" separator=",">
-				${item2}
+			insert into excel_${table_name}
+			<foreach collection="item1" item="item3" open="(" close=")" separator="," index="index">
+				col_${index}
 			</foreach>
 			values
 			<foreach collection="item1" item="item3" open="(" close=")" separator=",">
 				#{item3}
+			</foreach>
+		</foreach>
+	</update>-->
+	
+		<update id="upload_excel" parameterType="java.util.HashMap">
+		<foreach collection="row" item="item1">
+			insert into excel_${table_name}
+			<foreach collection="item1" item="item3" index="index">
+				<if test="index == 0">(</if>
+				col_${index}
+				<if test="index != item1.size()-1">,</if>
+				<if test="index == item1.size()-1">)</if>
+			</foreach>
+			values
+			<foreach collection="item1" item="item3" index="index">
+				<if test="index == 0">(</if>
+				#{item3}
+				<if test="index != item1.size()-1">,</if>
+				<if test="index == item1.size()-1">);</if>
 			</foreach>
 		</foreach>
 	</update>

@@ -2,6 +2,7 @@ package model;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,7 +34,7 @@ public class ExcelService {
 		 map1.put("table_name", excel_no);
 		 List<List<Object>> error_catch = new ArrayList<>();
 		try {
-			FileInputStream file = new FileInputStream(new File("C:\\Users\\User\\Documents\\카카오톡 받은 파일\\4. LTE-M IoT 전송 단말기(IMEI) 2020.08.13.xlsx"));
+			FileInputStream file = new FileInputStream(new File("C:\\Users\\User\\Documents\\카카오톡 받은 파일\\4. LTE-M IoT 전송 단말기(IMEI) 2020.08.13 (1).xlsx"));
 			
 			XSSFWorkbook workbook = new XSSFWorkbook(file);
 			
@@ -56,16 +57,19 @@ public class ExcelService {
 //                    System.out.println(cell.getColumnIndex());
                     switch (cell.getCellType()) {	// cell의 타입을 하고, 값을 가져온다.
                         case NUMERIC:
-                            System.out.print((int) cell.getNumericCellValue() + "\t"); //getNumericCellValue 메서드는 기본으로 double형 반환
-                            Row_value.add((int) cell.getNumericCellValue());
+                            System.out.print((long) cell.getNumericCellValue() + "\t"); //getNumericCellValue 메서드는 기본으로 double형 반환
+                            Row_value.add((long) cell.getNumericCellValue());
                             break;
                         case STRING:
-                            System.out.print(cell.getStringCellValue() + "\t");
-                            Row_value.add(cell.getStringCellValue());
+//                            System.out.print(cell.getStringCellValue() + "\t");
+                            String test = new String(cell.getStringCellValue().getBytes(Charset.forName("UTF-8")));
+                            System.out.print(test);
+//                            Row_value.add(cell.getStringCellValue());
+                            Row_value.add(test);
                             break;
                         case BLANK:
                         	Row_value.add("");
-                        	System.out.println("blank");
+                        	System.out.print("blank");
                         	break;
                         case _NONE:
                         	Row_value.add("");
@@ -73,7 +77,7 @@ public class ExcelService {
                         	break;
                         case FORMULA:
                         	Row_value.add("");
-                        	System.out.println("formula");
+                        	System.out.print("formula");
                         	break;
                     }
                 }
@@ -95,7 +99,7 @@ public class ExcelService {
             }
             System.out.println(list.toString());
             System.out.println(lastcell);
-            for(int i=1; i<lastcell; i++) {
+            for(int i=0; i<lastcell; i++) {
             	arr.add(i);
             }
             System.out.println(excel_no);
@@ -111,7 +115,7 @@ public class ExcelService {
             map.put("row", list);
             map.put("table_name", excel_no);
             System.out.println(error_catch.toString());
-           // dao.upload_excel(map);
+           dao.upload_excel(map);
 		}
 	}
 
